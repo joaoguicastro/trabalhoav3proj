@@ -1,19 +1,19 @@
 # Base image
 FROM node:18-alpine
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy dependencies files
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy application files
 COPY . .
 
-# Build the TypeScript code
+# Compile TypeScript
 RUN npm run build
 
 # Expose the application port
