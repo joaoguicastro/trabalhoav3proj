@@ -1,0 +1,11 @@
+{
+    "build": {
+      "cmd": "npm install",
+      "output": "dist"
+    },
+    "start": {
+      "cmd": "node dist/server.js",
+      "port": 3333
+    }
+  }
+  
