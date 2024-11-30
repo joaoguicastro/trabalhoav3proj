@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { turmaRepository } from '../../repositories/turmaRepository';
 
 export default async function turmaRoutes(server: FastifyInstance) {
-  // Criar uma turma
   server.post('/turmas', async (request, reply) => {
     const { nome, descricao, disciplinas } = request.body as {
       nome: string;
@@ -19,7 +18,6 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  // Listar todas as turmas
   server.get('/turmas', async (request, reply) => {
     try {
       const turmas = await turmaRepository.findAll();
@@ -30,7 +28,6 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  // Obter uma turma por ID
   server.get('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
 
@@ -45,7 +42,6 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  // Atualizar uma turma
   server.put('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const { nome, descricao, disciplinas } = request.body as {
@@ -63,7 +59,6 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  // Excluir uma turma
   server.delete('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
 
