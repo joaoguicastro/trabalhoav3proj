@@ -20,5 +20,6 @@ model Turma {
   disciplinas Json      
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  idAlunos Int 
 }
 
