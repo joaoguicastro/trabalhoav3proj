@@ -3,19 +3,15 @@ import { turmaRepository } from '../../repositories/turmaRepository';
 
 export default async function turmaRoutes(server: FastifyInstance) {
   server.post('/turmas', async (request, reply) => {
-    const { nome, descricao, disciplinas, idAluno } = request.body as {
+    const { nome, descricao, disciplinas, idAlunos } = request.body as {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAluno: number; // Tornar opcional, caso não seja obrigatório
+      idAlunos: number; // Correspondendo ao modelo Prisma
     };
-  
-    if (!idAluno) {
-      return reply.status(400).send({ error: 'idAluno é obrigatório' });
-    }
-  
+
     try {
-      const turma = await turmaRepository.create({ nome, descricao, disciplinas, idAluno });
+      const turma = await turmaRepository.create({ nome, descricao, disciplinas, idAlunos });
       return reply.status(201).send(turma);
     } catch (error) {
       console.error(error);
@@ -39,16 +35,15 @@ export default async function turmaRoutes(server: FastifyInstance) {
 
   server.put('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { nome, descricao, disciplinas, idAluno } = request.body as {
+    const { nome, descricao, disciplinas, idAlunos } = request.body as {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAluno: number;
+      idAlunos: number;
     };
 
     try {
-      const turma = await turmaRepository.update(Number(id), { nome, descricao, disciplinas,idAluno });
+      const turma = await turmaRepository.update(Number(id), { nome, descricao, disciplinas, idAlunos });
       return reply.send(turma);
     } catch (error) {
       console.error(error);
