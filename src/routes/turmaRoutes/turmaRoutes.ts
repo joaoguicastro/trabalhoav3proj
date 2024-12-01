@@ -33,7 +33,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  server.get('turmas', async (request, reply) => {
+  server.get('/turmas', async (request, reply) => {
     try {
       const turmas = await turmaRepository.findAll();
       return reply.send(turmas);
