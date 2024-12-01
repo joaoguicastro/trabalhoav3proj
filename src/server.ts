@@ -6,10 +6,11 @@ const server = Fastify();
 
 server.register(turmaRoutes)
 
-server.listen({port: 3333}, async (err, address) => {
+server.listen({ port: 3333, host: '0.0.0.0' }, (err, address) => {
     if (err) {
-        console.error(err);
-        process.exit(1);
+      console.error(err);
+      process.exit(1);
     }
-    console.log(`Server listening at ${address}`);
-});
+    console.log(`Server is running at ${address}`);
+  });
+  
