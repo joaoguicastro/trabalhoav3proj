@@ -6,6 +6,7 @@ export interface CreateTurmaDTO {
   nome: string;
   descricao: string;
   disciplinas: string[];
+  idAluno: number;
 }
 
 export const turmaRepository = {
