@@ -33,6 +33,17 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
+  server.get('turmas', async (request, reply) => {
+    try {
+      const turmas = await turmaRepository.findAll();
+      return reply.send(turmas);
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: 'Erro ao listar turmas' });
+    }
+  }
+  )
+
   server.put('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const { nome, descricao, disciplinas, idAlunos } = request.body as {
