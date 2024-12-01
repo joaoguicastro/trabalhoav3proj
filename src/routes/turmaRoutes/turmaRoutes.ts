@@ -7,7 +7,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAlunos: number; // Correspondendo ao modelo Prisma
+      idAlunos: number;
     };
 
     try {
@@ -41,8 +41,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
       console.error(error);
       return reply.status(500).send({ error: 'Erro ao listar turmas' });
     }
-  }
-  )
+  });
 
   server.put('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -71,6 +70,19 @@ export default async function turmaRoutes(server: FastifyInstance) {
     } catch (error) {
       console.error(error);
       return reply.status(500).send({ error: 'Erro ao excluir a turma' });
+    }
+  });
+
+  // Nova rota para vincular alunos a uma turma
+  server.post('/turmas/:id/vincular-alunos', async (request, reply) => {
+    const { id } = request.params as { id: string };
+
+    try {
+      await turmaRepository.vincularAlunosNaTurma(Number(id)); // Vincula os alunos à turma
+      return reply.status(200).send({ message: `Alunos vinculados à turma ${id} com sucesso!` });
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ error: 'Erro ao vincular alunos à turma' });
     }
   });
 }
