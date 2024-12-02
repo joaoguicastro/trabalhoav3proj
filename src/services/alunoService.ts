@@ -19,7 +19,7 @@ export const alunoService = {
         },
       });
 
-      return response.data as Aluno[]; // Retorna os dados convertidos para o tipo Aluno[]
+      return response.data as Aluno[]; 
     } catch (error) {
       console.error('Erro ao buscar alunos:', error);
       throw new Error('Erro ao buscar alunos do microserviço');
@@ -38,7 +38,7 @@ export const alunoService = {
         throw new Error(`Aluno com ID ${alunoId} não encontrado`);
       }
 
-      return response.data as Aluno; // Retorna os dados do aluno específico
+      return response.data as Aluno;
     } catch (error) {
       console.error(`Erro ao buscar o aluno com ID ${alunoId}:`, error);
       throw new Error('Erro ao buscar o aluno do microserviço');
@@ -46,5 +46,3 @@ export const alunoService = {
   },
 };
 
-
-//asdasdasda

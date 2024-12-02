@@ -7,7 +7,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAlunos: number; // Recebido como número
+      idAlunos: number; 
     };
   
     try {
@@ -15,7 +15,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
         nome,
         descricao,
         disciplinas,
-        idAlunos: [idAlunos], // Converta para um array
+        idAlunos: [idAlunos], 
       });
       return reply.status(201).send(turma);
     } catch (error) {
@@ -55,7 +55,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAlunos: number; // Recebido como número
+      idAlunos: number; 
     };
   
     try {
@@ -63,7 +63,7 @@ export default async function turmaRoutes(server: FastifyInstance) {
         nome,
         descricao,
         disciplinas,
-        idAlunos: [idAlunos], // Converta para um array
+        idAlunos: [idAlunos],
       });
       return reply.send(turma);
     } catch (error) {
@@ -89,7 +89,6 @@ export default async function turmaRoutes(server: FastifyInstance) {
     }
   });
 
-  // Nova rota para vincular alunos a uma turma
   server.post('/turmas/:id/vincular-aluno', async (request, reply) => {
     const { id } = request.params as { id: string };
     const { alunoId } = request.body as { alunoId: number };
