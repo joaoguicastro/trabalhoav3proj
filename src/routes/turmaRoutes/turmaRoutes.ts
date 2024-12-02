@@ -7,17 +7,23 @@ export default async function turmaRoutes(server: FastifyInstance) {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAlunos: number;
+      idAlunos: number; // Recebido como número
     };
-
+  
     try {
-      const turma = await turmaRepository.create({ nome, descricao, disciplinas, idAlunos });
+      const turma = await turmaRepository.create({
+        nome,
+        descricao,
+        disciplinas,
+        idAlunos: [idAlunos], // Converta para um array
+      });
       return reply.status(201).send(turma);
     } catch (error) {
       console.error(error);
       return reply.status(500).send({ error: 'Erro ao criar a turma' });
     }
   });
+  
 
   server.get('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -49,17 +55,27 @@ export default async function turmaRoutes(server: FastifyInstance) {
       nome: string;
       descricao: string;
       disciplinas: string[];
-      idAlunos: number;
+      idAlunos: number; // Recebido como número
     };
-
+  
     try {
-      const turma = await turmaRepository.update(Number(id), { nome, descricao, disciplinas, idAlunos });
+      const turma = await turmaRepository.update(Number(id), {
+        nome,
+        descricao,
+        disciplinas,
+        idAlunos: [idAlunos], // Converta para um array
+      });
       return reply.send(turma);
     } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        return reply.status(500).send({ error: error.message });
+      }
       console.error(error);
-      return reply.status(500).send({ error: 'Erro ao atualizar a turma' });
+      return reply.status(500).send({ error: 'Erro desconhecido ao atualizar a turma' });
     }
   });
+  
 
   server.delete('/turmas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -74,15 +90,25 @@ export default async function turmaRoutes(server: FastifyInstance) {
   });
 
   // Nova rota para vincular alunos a uma turma
-  server.post('/turmas/:id/vincular-alunos', async (request, reply) => {
+  server.post('/turmas/:id/vincular-aluno', async (request, reply) => {
     const { id } = request.params as { id: string };
-
+    const { alunoId } = request.body as { alunoId: number };
+  
     try {
-      await turmaRepository.vincularAlunosNaTurma(Number(id)); // Vincula os alunos à turma
-      return reply.status(200).send({ message: `Alunos vinculados à turma ${id} com sucesso!` });
+      const turma = await turmaRepository.vincularAlunoNaTurma(Number(id), alunoId);
+      return reply.status(200).send({
+        message: `Aluno ${alunoId} vinculado à turma ${id} com sucesso!`,
+        turma,
+      });
     } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        return reply.status(500).send({ error: error.message });
+      }
       console.error(error);
-      return reply.status(500).send({ error: 'Erro ao vincular alunos à turma' });
+      return reply.status(500).send({ error: 'Erro desconhecido ao vincular aluno à turma' });
     }
   });
+  
+  
 }
