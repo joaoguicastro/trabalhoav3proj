@@ -109,6 +109,24 @@ export default async function turmaRoutes(server: FastifyInstance) {
       return reply.status(500).send({ error: 'Erro desconhecido ao vincular aluno à turma' });
     }
   });
+
+  server.post('/turmas/:id/vincular-funcionario', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { funcionarioId } = request.body as { funcionarioId: number };
+  
+    try {
+      const turma = await turmaRepository.vincularFuncionarioNaTurma(Number(id), funcionarioId);
+      return reply.status(200).send({
+        message: `Funcionário ${funcionarioId} vinculado à turma ${id} com sucesso!`,
+        turma,
+      });
+    } catch (error) {
+      console.error((error as Error).message);
+      return reply.status(500).send({ error: (error as Error).message });
+    }
+  });
+  
+  
   
   
 }

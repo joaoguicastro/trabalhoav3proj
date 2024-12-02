@@ -8,14 +8,10 @@ export interface CreateTurmaDTO {
   descricao: string;
   disciplinas: string[];
   idAlunos: number[];
-}
-
-export interface Aluno {
-  id: number;
-  nome: string;
-  email: string;
-  dataNasc: string;
-  turmaId: number;
+  nomesAlunos?: string[];
+  idFuncionarios?: number[];
+  nomesFuncionarios?: string[];
+  cargosFuncionarios?: string[];
 }
 
 export const turmaRepository = {
@@ -24,8 +20,12 @@ export const turmaRepository = {
       data: {
         nome: data.nome,
         descricao: data.descricao,
-        disciplinas: JSON.stringify(data.disciplinas), // Salva como JSON
-        idAlunos: JSON.stringify(data.idAlunos), // Salva como JSON
+        disciplinas: JSON.stringify(data.disciplinas),
+        idAlunos: JSON.stringify(data.idAlunos),
+        nomesAlunos: JSON.stringify(data.nomesAlunos || []),
+        idFuncionarios: JSON.stringify(data.idFuncionarios || []),
+        nomesFuncionarios: JSON.stringify(data.nomesFuncionarios || []),
+        cargosFuncionarios: JSON.stringify(data.cargosFuncionarios || []),
       },
     });
   },
@@ -47,6 +47,10 @@ export const turmaRepository = {
         ...data,
         disciplinas: data.disciplinas ? JSON.stringify(data.disciplinas) : undefined,
         idAlunos: data.idAlunos ? JSON.stringify(data.idAlunos) : undefined,
+        nomesAlunos: data.nomesAlunos ? JSON.stringify(data.nomesAlunos) : undefined,
+        idFuncionarios: data.idFuncionarios ? JSON.stringify(data.idFuncionarios) : undefined,
+        nomesFuncionarios: data.nomesFuncionarios ? JSON.stringify(data.nomesFuncionarios) : undefined,
+        cargosFuncionarios: data.cargosFuncionarios ? JSON.stringify(data.cargosFuncionarios) : undefined,
       },
     });
   },
@@ -59,48 +63,78 @@ export const turmaRepository = {
 
   async vincularAlunoNaTurma(turmaId: number, alunoId: number) {
     try {
-      // Busca a turma existente
       const turma = await this.findById(turmaId);
-  
+
       if (!turma) {
         throw new Error('Turma não encontrada');
       }
-  
-      // Busca os dados do aluno no microserviço
-      const alunoResponse = await axios.get<Aluno>(`https://gestaoaluno-production.up.railway.app/api/alunos/${alunoId}`);
+
+      const alunoResponse = await axios.get<{ id: number; nome: string }>(
+        `https://gestaoaluno-production.up.railway.app/api/alunos/${alunoId}`
+      );
       const aluno = alunoResponse.data;
-  
-      // Valida se o aluno foi encontrado
-      if (!aluno || !aluno.id || aluno.id !== alunoId) {
-        throw new Error(`Aluno com ID ${alunoId} não encontrado no microserviço`);
+
+      if (!aluno) {
+        throw new Error('Aluno não encontrado no serviço externo');
       }
-  
-      // Converte idAlunos e disciplinas para arrays
-      const idAlunos: number[] = turma.idAlunos ? JSON.parse(turma.idAlunos as unknown as string) : [];
-      const disciplinas: string[] = turma.disciplinas ? JSON.parse(turma.disciplinas as unknown as string) : [];
-  
-      // Verifica se o aluno já está vinculado
-      if (idAlunos.includes(alunoId)) {
-        throw new Error(`Aluno ${alunoId} já vinculado à turma ${turmaId}`);
+
+      const idAlunos: number[] = turma.idAlunos ? JSON.parse(turma.idAlunos as string) : [];
+      const nomesAlunos: string[] = turma.nomesAlunos ? JSON.parse(turma.nomesAlunos as string) : [];
+
+      if (idAlunos.includes(aluno.id)) {
+        throw new Error('Aluno já vinculado a esta turma');
       }
-  
-      // Adiciona o aluno ao array
-      idAlunos.push(alunoId);
-      disciplinas.push(aluno.nome); // Usa o nome do aluno do microserviço
-  
-      // Atualiza a turma no banco de dados
+
+      idAlunos.push(aluno.id);
+      nomesAlunos.push(aluno.nome);
+
       return this.update(turmaId, {
         idAlunos,
-        disciplinas,
+        nomesAlunos,
       });
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(`Erro no microserviço de alunos: ${error.message}`);
-        throw new Error('Erro ao acessar o microserviço de alunos');
-      }
-  
       console.error(`Erro ao vincular aluno à turma ${turmaId}:`, error);
       throw new Error('Erro ao vincular aluno à turma');
     }
-  }  
+  },
+
+  async vincularFuncionarioNaTurma(turmaId: number, funcionarioId: number) {
+    try {
+      const turma = await this.findById(turmaId);
+
+      if (!turma) {
+        throw new Error('Turma não encontrada');
+      }
+
+      const funcionarioResponse = await axios.get<{ id: number; nome: string; profissao: string }>(
+        `https://micronode-production.up.railway.app/api/funcionario/${funcionarioId}`
+      );
+      const funcionario = funcionarioResponse.data;
+
+      if (!funcionario) {
+        throw new Error('Funcionário não encontrado no serviço remoto');
+      }
+
+      const idFuncionarios: number[] = turma.idFuncionarios ? JSON.parse(turma.idFuncionarios as string) : [];
+      const nomesFuncionarios: string[] = turma.nomesFuncionarios ? JSON.parse(turma.nomesFuncionarios as string) : [];
+      const cargosFuncionarios: string[] = turma.cargosFuncionarios ? JSON.parse(turma.cargosFuncionarios as string) : [];
+
+      if (idFuncionarios.includes(funcionarioId)) {
+        throw new Error('Funcionário já vinculado a esta turma');
+      }
+
+      idFuncionarios.push(funcionarioId);
+      nomesFuncionarios.push(funcionario.nome);
+      cargosFuncionarios.push(funcionario.profissao || 'Não especificado');
+
+      return this.update(turmaId, {
+        idFuncionarios,
+        nomesFuncionarios,
+        cargosFuncionarios,
+      });
+    } catch (error) {
+      console.error(`Erro ao vincular funcionário à turma ${turmaId}:`, error);
+      throw new Error('Erro ao vincular funcionário à turma');
+    }
+  },
 };
